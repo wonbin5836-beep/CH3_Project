@@ -26,4 +26,5 @@ private:
 	void TogglePlatformVisibility();
 	void Hide();
 	void Show();
+	//test
 };
