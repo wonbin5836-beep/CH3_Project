@@ -1,6 +1,6 @@
-#include "TimerMovingPlatform.h"
+#include "TimerRotatingPlatform.h"
 
-ATimerMovingPlatform::ATimerMovingPlatform()
+ATimerRotatingPlatform::ATimerRotatingPlatform()
 {
 	SceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp2"));
 	SetRootComponent(SceneComp);
@@ -8,23 +8,29 @@ ATimerMovingPlatform::ATimerMovingPlatform()
 	StaticMeshComp->SetupAttachment(SceneComp);
 	
 	PrimaryActorTick.bCanEverTick = false;
-	MoveSpeed = 100.0f;
-	MaxRange = 500.0f;
+	RotationSpeed = 360.0f;
 	SpawnTimer = 0.008f;
 	HideTimer = 5.0f;
-	SpawnOffset  = 100.0f;
+	SpawnOffset  = 100.0f;	
 }
-void ATimerMovingPlatform::BeginPlay()
+
+void ATimerRotatingPlatform::BeginPlay()
 {
 	Super::BeginPlay();
-	LastTime = GetWorld()->GetTimeSeconds();
-	StartLocation = GetActorLocation();
-	Direction = 1.0f;
 	if (GetWorld())
 	{
-		GetWorld()->GetTimerManager().SetTimer(MovingHandle, this, &ATimerMovingPlatform::MoveStep, SpawnTimer, true);
-		GetWorld()->GetTimerManager().SetTimer(HideHandle, this, &ATimerMovingPlatform::TogglePlatformVisibility, HideTimer, true);
-		
+		GetWorld()->GetTimerManager().SetTimer(
+			RotatingHandle,
+			this,
+			&ATimerRotatingPlatform::Rotate,
+			SpawnTimer,
+			true);
+		GetWorld()->GetTimerManager().SetTimer(
+			HideHandle,
+			this, 
+			&ATimerRotatingPlatform::TogglePlatformVisibility,
+			HideTimer,
+			true);
 	}
 	
 	if (GetOwner() ==nullptr)
@@ -36,8 +42,8 @@ void ATimerMovingPlatform::BeginPlay()
 		SpawnParams.Owner = this; 
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		
-		ATimerMovingPlatform* SpawnedPlatform = (ATimerMovingPlatform*) GetWorld()->SpawnActor<ATimerMovingPlatform>(
-			ATimerMovingPlatform::StaticClass(),
+		ATimerRotatingPlatform* SpawnedPlatform = (ATimerRotatingPlatform*) GetWorld()->SpawnActor<ATimerRotatingPlatform>(
+			ATimerRotatingPlatform::StaticClass(),
 			SpawnLocation,
 			SpawnRotation,
 			SpawnParams);
@@ -51,14 +57,13 @@ void ATimerMovingPlatform::BeginPlay()
 				UMaterialInterface* Material = StaticMeshComp->GetMaterial(0);
 				SpawnedPlatform->StaticMeshComp->SetMaterial(0,Material);
 			}
-			SpawnedPlatform->MoveSpeed = MoveSpeed;
-			SpawnedPlatform->MaxRange  = MaxRange;
+			SpawnedPlatform->RotationSpeed = RotationSpeed;
 			SpawnedPlatform->HideTimer = HideTimer;
 			SpawnedPlatform->SpawnTimer = SpawnTimer;
 			SpawnedPlatform->GetWorld()->GetTimerManager().SetTimer(
-				SpawnedPlatform->MovingHandle,
+				SpawnedPlatform->RotatingHandle,
 				SpawnedPlatform,
-				&ATimerMovingPlatform::MoveStep,
+				&ATimerRotatingPlatform::Rotate,
 				SpawnTimer,
 				true);
 			
@@ -68,39 +73,22 @@ void ATimerMovingPlatform::BeginPlay()
 			SpawnedPlatform->GetWorld()->GetTimerManager().SetTimer( // 원본 hide와 시간차
 				SpawnedPlatform->HideHandle,
 				SpawnedPlatform,
-				&ATimerMovingPlatform::TogglePlatformVisibility,
+				&ATimerRotatingPlatform::TogglePlatformVisibility,
 				HideTimer,true
 				);
 		}
 	}
 }
-void ATimerMovingPlatform::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);	
-}
-
-void ATimerMovingPlatform::MoveStep()
+void ATimerRotatingPlatform::Rotate()
 {
 	float CurrentTime = GetWorld()->GetTimeSeconds();
 	float CustomDeltaTime = CurrentTime - LastTime;
 	LastTime = CurrentTime;
 	
-	FVector WorldDelta = GetActorLocation() - StartLocation;
-	FVector LocalDelta = GetActorTransform().InverseTransformVector(WorldDelta);
-	float CurrentLocation = LocalDelta.Y; 
-	
-	if (CurrentLocation > MaxRange)
-	{
-		Direction = -1.0f;
-	}else if (CurrentLocation < 0.0f)
-	{
-		Direction = 1.0f;
-	}
-	
-	AddActorLocalOffset(FVector(0.0f,Direction*MoveSpeed*CustomDeltaTime,0.0f));
+	AddActorLocalRotation(FRotator(0.0f, RotationSpeed*CustomDeltaTime ,0.0f));
 }
 
-void ATimerMovingPlatform::TogglePlatformVisibility()
+void ATimerRotatingPlatform::TogglePlatformVisibility()
 {
 	bIsPlatformVisible = !bIsPlatformVisible;
 
@@ -114,14 +102,19 @@ void ATimerMovingPlatform::TogglePlatformVisibility()
 	}
 }
 
-void ATimerMovingPlatform::Show()
+void ATimerRotatingPlatform::Show()
 {
 	SetActorHiddenInGame(false);      
 	SetActorEnableCollision(true);  
 }
 
-void ATimerMovingPlatform::Hide()
+void ATimerRotatingPlatform::Hide()
 {
 	SetActorHiddenInGame(true);    
 	SetActorEnableCollision(false); 
+}
+
+void ATimerRotatingPlatform::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 }

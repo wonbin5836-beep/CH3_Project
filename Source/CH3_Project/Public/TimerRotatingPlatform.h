@@ -1,16 +1,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MovingPlatform.h"
-#include "TimerMovingPlatform.generated.h"
+#include "RotatingPlatform.h"
+#include "TimerRotatingPlatform.generated.h"
 
 UCLASS()
-class CH3_PROJECT_API ATimerMovingPlatform : public AMovingPlatform
+class CH3_PROJECT_API ATimerRotatingPlatform : public ARotatingPlatform
 {
 	GENERATED_BODY()
-
+	
 public:
-	ATimerMovingPlatform();
+	ATimerRotatingPlatform();
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Timer")
 	float SpawnTimer;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="HideTime")
@@ -22,9 +22,9 @@ private:
 	virtual void Tick(float DeltaTime) override;
 	
 	float LastTime;
-	void MoveStep();
+	void Rotate();
 	
-	FTimerHandle MovingHandle;
+	FTimerHandle RotatingHandle;
 	FTimerHandle HideHandle;
 	bool bIsPlatformVisible = true;  
 

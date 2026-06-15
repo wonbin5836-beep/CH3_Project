@@ -71,7 +71,7 @@ void ATickMovingPlatform::Tick(float DeltaTime)
 	//MaxRange를 넘기는 순간 
 	if (!FMath::IsNearlyZero(MoveSpeed))
 	{
-		AddActorWorldOffset(FVector(Direction * MoveSpeed * DeltaTime, 0.0f, 0.0f));
+		AddActorLocalOffset(FVector(Direction * MoveSpeed * DeltaTime, 0.0f, 0.0f));
 	}
 }
 /*

@@ -20,7 +20,7 @@ protected:
 	UStaticMeshComponent* StaticMeshComp;
 	
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
+	virtual void Tick( float DeltaTime ) override;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Rotation")
 	float RotationSpeed;

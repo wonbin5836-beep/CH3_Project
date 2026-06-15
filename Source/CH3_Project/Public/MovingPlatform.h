@@ -11,7 +11,10 @@ class CH3_PROJECT_API AMovingPlatform : public AActor
 	
 public:	
 	AMovingPlatform();
-
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Move")
+	float MoveSpeed;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Move")
+	float MaxRange;
 protected:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Move|Components")
 	USceneComponent* SceneComp;
@@ -21,10 +24,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Move")
-	float MoveSpeed;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Move")
-	float MaxRange;
+	
 	float Direction = 1.0f;
 	
 	FVector StartLocation;
